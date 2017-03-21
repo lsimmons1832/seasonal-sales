@@ -8,29 +8,39 @@ function makeDOM(xhrData){
 	for (var i = 0; i < xhrData.products.length; i++) {
 		currentProduct = xhrData.products[i];
 
-			productString += `<div><p>${currentProduct.id} </p>`;
+			productString += `<div class="col-xs-6 col-md-3"><div class="thumbnail"><p>${currentProduct.id} </p>`;
 		  productString += `<p>${currentProduct.name} </p>`;
 		  productString += `<p>${currentProduct.price}</p>`;
 		  productString += `<p>${currentProduct.category_id}</p>`;
-  		productString += `</div>`;
+  		productString += `</div></div>`;
   	}
 
 	productContainer.innerHTML += productString;
 		
 }
 
-function makeDepartmentDOM(xhrData){
-	for (var i = 0; i < xhrData.products.length; i++) {
-		currentDepartment = xhrData.products[i];
+var departmentContainer = document.getElementById("departmentContainer");
 
-			productString += `<div><p>${currentDepartment.id} </p>`;
-		  productString += `<p>${currentDepartment.name} </p>`;
-		  productString += `<p>${currentDepartment.price}</p>`;
-		  productString += `<p>${currentDepartment.category_id}</p>`;
-  		productString += `</div>`;
+var departmentString = "";
+var currentDepartment;
+
+function makeDepartmentDOM(xhrData){
+	for (var i = 0; i < xhrData.categories.length; i++) {
+		currentDepartment = xhrData.categories[i];
+
+			departmentString += `<div><p>${currentDepartment.id} </p>`;
+		  departmentString += `<p>${currentDepartment.name} </p>`;
+		  departmentString += `<p>Season Discount: ${currentDepartment.season_discount}</p>`;
+		  departmentString += `<p>Discount Amount: ${currentDepartment.discount}</p>`;
+  		departmentString += `</div>`;
+				if (currentDepartment.id === currentProduct.category_id) {
+				currentProduct.price = currentProduct.price - (currentProduct.price * currentDepartment.discount); //put a line to write to DOM
+				console.log("You might be on to something", currentProduct.price);
+				}
   	}
 
-	departmentContainer.innerHTML += DepartmentString;
+	departmentContainer.innerHTML += departmentString;
+	productContainer.innerHTML += productString;
 		
 }
 
