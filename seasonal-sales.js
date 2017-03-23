@@ -1,50 +1,30 @@
-var productContainer = document.getElementById("productContainer");
-
-var productString = "";
-var currentProduct;
-var product = [];
-
-function makeDOM(xhrData){
-	product = xhrData.products;
-		for (var i = 0; i < xhrData.products.length; i++) {
-		currentProduct = xhrData.products[i];
-
-			productString += `<div class="col-xs-6 col-md-3"><div class="thumbnail"><p class="hidden">${currentProduct.id} </p>`;
-		  productString += `<p>${currentProduct.name} </p>`;
-		  productString += `<p>${currentProduct.price}</p>`;
-		  productString += `<p class"hidden">${currentProduct.category_id}</p>`;
-  		productString += `</div></div>`;
-  	}
-
-	productContainer.innerHTML += productString;
-		
-}
-
 var departmentContainer = document.getElementById("departmentContainer");
+var productContainer = document.getElementById("productContainer");
 
 var departmentString = "";
 var currentDepartment;
 var departmentArray = [];
+var products = [];
 
-function makeDepartmentDOM(xhrData){
-	for (var i = 0; i < xhrData.categories.length; i++) {
-		currentDepartment = xhrData.categories[i];
+function makeDOM(season_discount){
+var productString = "";
+			for (var i = 0; i < products.length; i++) {
 
-			departmentString += `<div><p class"hidden">${currentDepartment.id} </p>`;
-		  departmentString += `<p>${currentDepartment.name} </p>`;
-		  departmentString += `<p>Season Discount: ${currentDepartment.season_discount}</p>`;
-		  departmentString += `<p>Discount Amount: ${currentDepartment.discount}</p>`;
-  		departmentString += `</div>`;
-				// if (currentDepartment.id === currentProduct.category_id) {
-				// currentProduct.price = currentProduct.price - (currentProduct.price * currentDepartment.discount); //put a line to write to DOM
-				// console.log("You might be on to something", currentProduct.price);
-				// }
+			productString += `<div class="col-xs-6 col-md-3"><div class="thumbnail"><p class="hidden">${products[i].id} </p>`;
+		  productString += `<p>${products[i].name} </p>`;
+		  if(season_discount === products[i].dept_seasonaldisc){
+		  	productString += `<p>${products[i].season_price.toFixed(2)}</p>`;
+			}else {
+				productString += `<p>${products[i].price}</p>`;
+			}
+		  productString += `<p class="hidden">${products[i].category_id}</p>`;
+  		productString += `</div></div>`;
   	}
 
-	// departmentContainer.innerHTML += departmentString;
-	// productContainer.innerHTML += productString;
-		
+	productContainer.innerHTML = productString;
 }
+
+
 
 function executeAfterDepartmentFileLoaded() {
 	console.log("Yay, Your Deparment code works!");
@@ -57,6 +37,9 @@ function executeIfDepartmentFileLoadFails() {
 
 }
 
+
+
+var departmentLookup = new XMLHttpRequest();
 function executeAfterProductFileLoaded() {
 	console.log("Yay, Your Product code works!");
 	var data = JSON.parse(this.responseText);
@@ -65,11 +48,7 @@ function executeAfterProductFileLoaded() {
 
 function executeIfProductFileLoadFails() {
 	console.log("Sorry, Your code is broken.");
-
 }
-
-
-var departmentLookup = new XMLHttpRequest();
 departmentLookup.addEventListener("load", executeAfterDepartmentFileLoaded);
 departmentLookup.addEventListener("error", executeIfDepartmentFileLoadFails);
 departmentLookup.open("GET", "departments.json");
@@ -84,25 +63,34 @@ myRequest.send();
 console.log("Last line in JS file: ", Date.now());
 
 
-// var seasonSelected = document.getElementsByClassName("dropdown");
-// seasonSelected.addEventListener("change", function(event){
-// 	if (event.target.selected === true){
-// 		currentProduct.category_id = currentDepartment.name;
-// 		currentProduct.price = currentProduct.price - (currentProduct.price * currentDepartment.discount);
-// 		console.log(currentProduct);
-// 	}
-
-// });
-
 function dataHandler(data){
-		product = data.products;
-		product.forEach(function(product){
-		console.log("Im in forEach");
+		products = data.products;
+		products.forEach(function(product){
+		
 	for (var i = 0; i < departmentArray.length; i++) {
 		if (product.category_id === departmentArray[i].id) {
+			product["dept_id"] = departmentArray[i].id;
+			product["dept_name"] = departmentArray[i].name;
+			product["dept_seasonaldisc"] = departmentArray[i].season_discount;
+			product["dept_discount"] = departmentArray[i].discount;
+	    product["season_price"] = product.price - (product.price * departmentArray[i].discount);
 			
 		}
 	}
 });
-	makeDOM(data);
+	makeDOM("none");
 }
+
+var season = document.getElementById("season");
+
+season.addEventListener("change", function(e){
+	var selectedSeason = e.target.value;
+	makeDOM(selectedSeason);
+});
+
+console.log("did my object change?", products);
+// season.addEventListener("change", funtion(e){
+// 	if (season.value == "summer") {
+// 		console.log("I'm doing stuff");
+// 	}
+// });
